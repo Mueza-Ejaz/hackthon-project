@@ -5,6 +5,8 @@ const page = () => {
   return (
     <div>
       <Shop/>
+      <Shop/>
+      
     </div>
   )
 }
