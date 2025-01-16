@@ -9,7 +9,6 @@ const page = () => {
   return (
     <div>
       <Hero />
-      
       <BestAir />
       <Feature />
       <Gear_up />
