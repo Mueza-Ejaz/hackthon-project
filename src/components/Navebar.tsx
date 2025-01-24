@@ -21,6 +21,7 @@ export function Navebar() {
 
         {/* Navigation */}
         <nav className="hidden md:flex items-center space-x-6">
+        
           <Link
             href="/allproduct"
             className="text-sm font-medium transition-colors hover:text-gray-600"
