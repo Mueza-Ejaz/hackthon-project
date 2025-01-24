@@ -13,8 +13,12 @@ interface Products {
   _id: string;
 }
 
+interface Params{
+  id:string
+}
+
 // Product detail function
-const ProductDetail = async ({ params }: any) => {
+const ProductDetail = async ({ params }: { params: Params }) => {
   const Querry: string = `*[_type == "product" && _id == "${params.id}"]{
   colors,_id,
   status,
