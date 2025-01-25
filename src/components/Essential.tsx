@@ -1,135 +1,85 @@
+"use client"; // Client Component directive for interactivity
+
+import { client } from "@/sanity/lib/client";
+
 import Image from "next/image";
 import Link from "next/link";
+import React from "react";
+
+interface Product {
+  id: number;
+  image: string;
+  description: string;
+  price: number;
+  category: string;
+  status: string;
+  inventory: number;
+  colors: string[];
+  productName: string;
+  _id: string;
+}
 
 const Essential = () => {
+  const [products, setProducts] = React.useState<Product[]>([]); // State for products
+
+  // Fetch data from Sanity
+  React.useEffect(() => {
+    const fetchProducts = async () => {
+      const query = `*[_type == "product"]{
+        colors,
+        _id,
+        status,
+        category,
+        price,
+        description,
+        "image": image.asset->url,
+        inventory,
+        productName
+      }`;
+      const sanityProducts = await client.fetch(query);
+      setProducts(sanityProducts);
+    };
+
+    fetchProducts();
+  }, []);
+
+  // Filter products to exclude "Shoes" category
+  const filteredProducts = products.filter(
+    (product) => product.category.toLowerCase() !== "shoes"
+  );
+
   return (
-    <div className="container mx-auto px-4 py-8">
-      <h2 className="text-2xl font-bold mb-6">The Essentials</h2>
+    <div className="w-full max-w-7xl mx-auto px-4 py-16">
+      <div className="flex justify-between items-center mb-6">
+        <h2 className="text-xl font-semibold">Latest Products</h2>
+      </div>
 
-      {/* Category Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-12">
-        <Link href="/mens" className="relative group">
-          <div className="overflow-hidden rounded-lg shadow-md">
-            <Image
-              src="/men.png"
-              alt="Mens Category"
-              width={440}
-              height={540} 
-              className="w-full object-cover transition-transform group-hover:scale-105"
-            />
-            <div className="absolute bottom-4 left-4">
-              <span className="bg-white px-4 py-2 rounded-full text-sm font-medium">
-                Mens
-              </span>
+      <div className="relative overflow-hidden">
+        <div className="flex">
+          {filteredProducts.slice(4, 9).map((product) => (
+            <div key={product._id} className="w-1/3 flex-shrink-0 px-2">
+              <div className="bg-[#f5f5f5] rounded-lg mb-4">
+                <Link href={`/allproduct/${product._id}`}>
+                  <Image
+                    src={product.image}
+                    alt={product.productName}
+                    width={400}
+                    height={400}
+                    className="w-full h-auto"
+                  />
+                </Link>
+              </div>
+              <div className="space-y-1">
+                <h3 className="font-medium">{product.productName}</h3>
+                <p className="text-gray-600 text-sm">{product.category}</p>
+                <p className="font-medium">₹{product.price.toLocaleString()}</p>
+              </div>
             </div>
-          </div>
-        </Link>
-
-        <Link href="/allProduct" className="relative group">
-          <div className="overflow-hidden rounded-lg shadow-md">
-            <Image
-              src="/women.png"
-              alt="Womens Category"
-              width={440}
-              height={540} 
-              className="w-full object-cover transition-transform group-hover:scale-105"
-            />
-            <div className="absolute bottom-4 left-4">
-              <span className="bg-white px-4 py-2 rounded-full text-sm font-medium">
-                Womens
-              </span>
-            </div>
-          </div>
-        </Link>
-
-        <Link href="/allProduct" className="relative group">
-          <div className="overflow-hidden rounded-lg shadow-md">
-            <Image
-              src="/kids.png"
-              alt="Kids Category"
-              width={440}
-              height={540} 
-              className="w-full object-cover transition-transform group-hover:scale-105"
-            />
-            <div className="absolute bottom-4 left-4">
-              <span className="bg-white px-4 py-2 rounded-full text-sm font-medium">
-                Kids
-              </span>
-            </div>
-          </div>
-        </Link>
-      </div>
-       
-      
-
-<div className="text-gray-600 body-font">
-  <div className="container px-28 py-8  flex md:items-center lg:items-start md:flex-row md:flex-nowrap flex-wrap flex-col">
- 
-    <div className="flex-grow flex flex-wrap md:pl-20 -mb-10 md:mt-0 mt-10 md:text-left text-center">
-      <div className="lg:w-1/4 md:w-1/2 w-full px-4">
-        <h2 className="title-font font-semibold text-gray-900 tracking-widest text-md mb-3">
-        Icons
-        </h2>
-        <nav className="list-none mb-10">
-        <ul className="space-y-2 text-md">
-            <li><Link href="allProduct" className="hover:underline">Air Force 1</Link></li>
-            <li><Link href="allProduct" className="hover:underline">Huarache</Link></li>
-            <li><Link href="allProduct" className="hover:underline">Air Max 90</Link></li>
-            <li><Link href="allProduct" className="hover:underline">Air Max 95</Link></li>
-          </ul>
-        </nav>
-      </div>
-
-      <div className="lg:w-1/4 md:w-1/2 w-full px-4">
-        <h2 className="title-font font-semibold text-gray-900 tracking-widest text-md mb-3">
-          Shoes
-        </h2>
-        <nav className="list-none mb-10">
-        <ul className="space-y-2 text-md">
-            <li><Link href="allProduct" className="hover:underline">All Shoes</Link></li>
-            <li><Link href="allProduct" className="hover:underline">Custom Shoes</Link></li>
-            <li><Link href="allProduct" className="hover:underline">Jordan Shoes</Link></li>
-            <li><Link href="allProduct" className="hover:underline">Running Shoes</Link></li>
-          </ul>
-        </nav>
-      </div>
-
-      <div className="lg:w-1/4 md:w-1/2 w-full px-4">
-        <h2 className="title-font font-semibold text-gray-900 tracking-widest text-md mb-3">
-          Clothing
-        </h2>
-        <nav className="list-none mb-10">
-        <ul className="space-y-2 text-md">
-            <li><Link href="allProduct" className="hover:underline">All Clothing</Link></li>
-            <li><Link href="allProduct" className="hover:underline">Modest Wear</Link></li>
-            <li><Link href="allProduct" className="hover:underline">Hoodies & Pullovers</Link></li>
-            <li><Link href="allProduct" className="hover:underline">Shirts & Tops</Link></li>
-          </ul>
-        </nav>
-      </div>
-      
-      <div className="lg:w-1/4 md:w-1/2 w-full px-4">
-        <h2 className="title-font font-semibold text-gray-900 tracking-widest text-md mb-3">
-          Kids
-        </h2>
-        <nav className="list-none mb-10">
-        <ul className="space-y-2 text-md">
-            <li><Link href="allProduct" className="hover:underline">Infant & Toddler Shoes</Link></li>
-            <li><Link href="allProduct" className="hover:underline">Kids Shoes</Link></li>
-            <li><Link href="allProduct" className="hover:underline">Kids Jordan Shoes</Link></li>
-            <li><Link href="allProduct" className="hover:underline">Kids Basketball Shoes</Link></li>
-          </ul>
-        </nav>
+          ))}
+        </div>
       </div>
     </div>
-  </div>
-  <div className="bg-gray-100">
- 
-  </div>
-</div>
-
-</div>
   );
 };
+
 export default Essential;
-      

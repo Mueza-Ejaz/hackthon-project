@@ -1,173 +1,136 @@
-"use client"
-import * as React from "react"
-import Image from "next/image"
-import { ChevronLeft, ChevronRight } from "lucide-react"
+"use client";
 
-// Men product const
-const mensProducts = [
-  {
-    id: 1,
-    name: "Nike Dri-FIT TechKnit",
-    category: "Men's Short-Sleeve Running Top",
-    price: 3895,
-    image: "/men1.png",
-  },
-  {
-    id: 2,
-    name: "Nike Dri-FIT Challenger",
-    category: "Men's 18cm (approx.) 2-in-1 Versatile Shorts",
-    price: 2495,
-    image: "/men2.png",
-  },
-  {
-    id: 3,
-    name: "Nike Dri-FIT TechKnit",
-    category: "Men's Short-Sleeve Running Top",
-    price: 3895,
-    image: "/men3.png",
-  },
-
-]
-
-// WomeMen product const
-const womensProducts = [
-  {
-    id: 1,
-    name: "Nike Dri-FIT Run",
-    category: "Women's Long-Sleeve Running Top",
-    price: 5295,
-    image: "/women1.png",
-  },
-  {
-    id: 2,
-    name: "Nike Fast",
-    category: "Women's Mid-Rise 7/8 Running Leggings with Pockets",
-    price: 3795,
-    image: "/women2.png",
-  },
-  {
-    id: 3,
-    name: "Nike Dri-FIT One",
-    category: "Women's Mid-Rise Leggings",
-    price: 2895,
-    image: "/women3.png"
-  },
-  
-]
+import { client } from "@/sanity/lib/client";
+import React, { useEffect, useState, useRef } from "react";
+import Image from "next/image";
+import { ChevronLeft, ChevronRight } from "lucide-react";
+import Link from "next/link";
 
 interface Product {
-  id: number
-  name: string
-  category: string
-  price: number
-  image: string
+  id: number;
+  image: string;
+  description: string;
+  price: number;
+  category: string;
+  status: string;
+  inventory: number;
+  colors: string[];
+  productName: string;
+  _id: string;
 }
 
-interface Products {
-  title: string
-  products: Product[]
-  shopLink: string
-}
+const GearUp = () => {
+  const [products, setProducts] = useState<Product[]>([]);
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const slideRef = useRef<HTMLDivElement>(null);
 
-const Gear_up = () => {
-  return (
-    <div className="max-w-7xl mx-auto px-4 py-8">
-      <h2 className="text-2xl font-semibold mb-6">Gear Up</h2>
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-8 ">
-        <Products
-          title=""
-          products={mensProducts}
-          shopLink="Shop Men's"
-        />
-        <Products
-          title=""
-          products={womensProducts}
-          shopLink="Shop Women's"
-        />
-      </div>
-    </div>
-  )
-}
+  useEffect(() => {
+    const fetchProducts = async () => {
+      const query = `*[_type == "product"] | order(_createdAt desc)[0...4] {
+        colors,
+        _id,
+        status,
+        category,
+        price,
+        description,
+        "image": image.asset->url,
+        inventory,
+        productName
+      }`;
+      const sanityProducts = await client.fetch(query);
+      setProducts(sanityProducts);
+    };
 
-export function Products({ title, products, shopLink }: Products) {
-  const [currentIndex, setCurrentIndex] = React.useState(0);
-  const slideRef = React.useRef<HTMLDivElement>(null);
+    fetchProducts();
+  }, []);
 
   const next = () => {
-    if (currentIndex < products.length - 4) {
+    if (currentIndex < products.length - 3) {
       setCurrentIndex((prevIndex) => prevIndex + 1);
     }
   };
 
   const prev = () => {
-    if (currentIndex > 0) { // Ensure the currentIndex is not less than 0
+    if (currentIndex > 0) {
       setCurrentIndex((prevIndex) => prevIndex - 1);
     }
   };
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (slideRef.current) {
-      slideRef.current.style.transform = `translateX(-${currentIndex * 50}%)`;
+      slideRef.current.style.transform = `translateX(-${currentIndex * 33.33}%)`;
     }
   }, [currentIndex]);
 
   return (
-    <div className="w-full">
-      <div className="flex justify-between items-center mb-4">
-        <span className="text-sm font-medium">{title}</span>
-        <div className="flex items-center gap-2">
-          <a href="#" className="text-sm font-medium hover:underline">
-            {shopLink}
-          </a>
-
-          {/* LEFT BUTTON */}
-          <button
-            onClick={prev}
-            className="p-2 rounded-full hover:bg-gray-200 bg-gray-300"
-            aria-label="Previous products">
-            <ChevronLeft className="w-5 h-5" />
-          </button>
-
-          {/* RIGHT BUTTON */}
-          <button
-            onClick={next}
-            className="p-2 rounded-full hover:bg-gray-200 bg-gray-300"
-            aria-label="Next products">
-            <ChevronRight className="w-5 h-5" />
-          </button>
-        </div>
-      </div>
-
+    <div className="max-w-7xl mx-auto px-4 py-8">
+      <h2 className="text-2xl font-semibold mb-6">Gear Up</h2>
       <div className="relative overflow-hidden">
-        <div
-          ref={slideRef}
-          className="flex transition-transform duration-300 ease-out"
+        {/* Left Arrow */}
+        <button
+          onClick={prev}
+          className="absolute left-0 top-1/2 transform -translate-y-1/2 bg-gray-300 hover:bg-gray-400 p-2 rounded-full z-10"
+          disabled={currentIndex === 0}
+          aria-label="Previous"
         >
-          {products.map((product) => (
-            <div key={product.id} className="w-1/2 flex-shrink-0 px-2">
-              <div className="bg-[#f5f5f5] rounded-lg mb-4">
-                <Image
-                  src={product.image}
-                  alt={product.name}
-                  width={300}
-                  height={300}
-                  className="w-full h-auto"
-                />
-              </div>
-            
+          <ChevronLeft className="w-5 h-5" />
+        </button>
 
-            <div className="space-y-1 mx-4">
-              <div className="flex justify-between items-center ">
-                <h3 className="font-semibold text-md mr-4">{product.name}</h3>
-                <p className="font-semibold text-sm">₹{product.price.toLocaleString()}</p>
+        {/* Product Row */}
+        <div className="overflow-hidden">
+          <div
+            ref={slideRef}
+            className="flex transition-transform duration-300 ease-out space-x-3"
+            style={{ width: `${products.length * 37.43}%` }}
+          >
+            {products.map((product) => (
+              <div
+                key={product._id}
+                className="w-1/4 flex-shrink-0 bg-white shadow-lg rounded-lg p-4 flex flex-col items-center"
+              >
+                <div
+                  className="relative bg-gradient-to-br  via-gray-300 to-gray-200 rounded-lg overflow-hidden mb-4 flex items-center justify-center shadow-md"
+                  style={{
+                    width: "100%",
+                    height: "300px",
+                  }}
+                >
+                  <Link href={`/allproduct/${product._id}`}>
+                    <Image
+                      src={product.image}
+                      alt={product.productName}
+                      width={200}
+                      height={300}
+                      className="w-full h-full object-cover"
+                    />
+                  </Link>
+                </div>
+                <h3 className="font-semibold text-sm truncate text-center">
+                  {product.productName}
+                </h3>
+                <p className="text-xs text-gray-600 truncate text-center">
+                  {product.category}
+                </p>
+                <p className="font-semibold text-sm mt-2 text-center">
+                  ₹{product.price.toLocaleString()}
+                </p>
               </div>
-              <p className="text-gray-600 text-sm">{product.category}</p>
-            </div> 
-            </div>
-          ))}
+            ))}
+          </div>
         </div>
+
+        {/* Right Arrow */}
+        <button
+          onClick={next}
+          className="absolute right-0 top-1/2 transform -translate-y-1/2 bg-gray-300 hover:bg-gray-400 p-2 rounded-full z-10"
+          disabled={currentIndex >= products.length - 3}
+          aria-label="Next"
+        >
+          <ChevronRight className="w-5 h-5" />
+        </button>
       </div>
     </div>
   );
 };
-export default Gear_up
+
+export default GearUp;

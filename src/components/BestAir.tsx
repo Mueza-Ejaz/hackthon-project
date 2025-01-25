@@ -4,6 +4,7 @@ import { client } from "@/sanity/lib/client";
 import React from "react";
 import Image from "next/image";
 import { ChevronLeft, ChevronRight } from "lucide-react";
+import Link from "next/link";
 
 interface Product {
   id: number;
@@ -95,13 +96,15 @@ const Products = () => {
           {products.map((product) => (
             <div key={product._id} className="w-1/3 flex-shrink-0 px-2">
               <div className="bg-[#f5f5f5] rounded-lg mb-4">
+                <Link href={`/allproduct/${product._id}`}>
                 <Image
                   src={product.image}
                   alt={product.productName}
                   width={400}
                   height={400}
                   className="w-full h-auto"
-                />
+                  />
+                  </Link>
               </div>
               <div className="space-y-1">
                 <h3 className="font-medium">{product.productName}</h3>
