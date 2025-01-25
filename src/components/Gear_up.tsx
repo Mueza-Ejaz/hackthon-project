@@ -77,7 +77,7 @@ const GearUp = () => {
         </button>
 
         {/* Product Row */}
-        <div className="overflow-hidden">
+        <div className="">
           <div
             ref={slideRef}
             className="flex transition-transform duration-300 ease-out space-x-3"
@@ -99,9 +99,9 @@ const GearUp = () => {
                     <Image
                       src={product.image}
                       alt={product.productName}
-                      width={200}
-                      height={300}
-                      className="w-full h-full object-cover"
+                      layout="fill"
+                      objectFit="contain"
+                      className="w-full h-full"
                     />
                   </Link>
                 </div>
