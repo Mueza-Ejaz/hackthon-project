@@ -33,7 +33,7 @@ const Cart = (item:Products) => {
         {item.description}
       </p>
       <p className="text-lg font-semibold mt-2 text-gray-800">
-        ${item.price}
+        RS {item.price}
       </p>
       <p className="text-sm text-gray-500">Status: {item.status}</p>
       <p className="text-sm">Inventory: {item.inventory}</p>
