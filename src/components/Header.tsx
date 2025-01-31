@@ -4,6 +4,7 @@ import React from "react";
 import Image from "next/image";
 import Link from "next/link";
 import ClerkButtons from "./ClerkButtons"; // Importing the new client component
+import { UserButton } from "@clerk/nextjs";
 
 const Header = () => {
   return (
@@ -33,7 +34,10 @@ const Header = () => {
         <span className="hidden sm:inline">|</span>
 
         {/* Using ClerkButtons component */}
+        <UserButton />
+        <div className="bg-gray-400 text-[22px]">
         <ClerkButtons />
+        </div>
       </div>
     </div>
   );
