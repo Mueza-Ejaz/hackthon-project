@@ -35,7 +35,7 @@ const Header = () => {
 
         {/* Using ClerkButtons component */}
         <UserButton />
-        <div className="bg-gray-400 text-[22px]">
+        <div>
         <ClerkButtons />
         </div>
       </div>
