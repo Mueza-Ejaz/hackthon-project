@@ -53,7 +53,9 @@ const ProductDetail = async ({ params }: { params: Params }) => {
         </div>
         <div className="flex flex-col space-y-4">
           <h1 className="text-2xl md:text-3xl font-extrabold text-gray-800">{product.productName}</h1>
+
           <p className="text-base md:text-lg text-gray-700 leading-relaxed">{product.description}</p>
+          
           <p className="text-xl md:text-2xl font-semibold text-blue-600">RS {product.price.toFixed(2)}</p>
           <div className="flex flex-col text-gray-600 space-y-1 md:space-y-2">
             <p>Category: <span className="font-medium text-gray-800">{product.category}</span></p>
