@@ -1,6 +1,8 @@
 'use client';
 
 import { client } from "@/sanity/lib/client";
+import { cartsItems } from "@/statelibrary";
+import { useAtom } from "jotai";
 import Image from "next/image";
 import { useState, useEffect } from "react";
 
@@ -21,6 +23,10 @@ interface Params {
 }
 
 const ProductDetail = ({ params }: { params: Params }) => {
+        
+  const[carts, setCarts] = useAtom(cartsItems)
+
+
   const [product, setProduct] = useState<Products | null>(null);
   const [isAddedToCart, setIsAddedToCart] = useState(false);
   const [cartCount, setCartCount] = useState(0);

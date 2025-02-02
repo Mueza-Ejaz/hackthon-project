@@ -1,8 +1,15 @@
-import Link from "next/link";
+"use client";
+
 import Image from "next/image";
 import { Search, Heart, ShoppingBag } from "lucide-react";
+import Link from "next/link";
+import { useAtom } from "jotai";
+import { cartsItems } from "@/statelibrary";
 
 export function Navebar() {
+
+  const[carts, setCarts] = useAtom(cartsItems)
+
   return (
     <header className="w-full border-b bg-white">
       <div className="container mx-auto flex h-16 items-center justify-between px-auto lg:px-auto">
@@ -73,9 +80,13 @@ export function Navebar() {
           <button>
             <Heart className="h-6 w-6 hover:text-red-600" />
           </button>
-          <button>
+          <Link className="flex" href={'/carts'}>
             <ShoppingBag className="h-6 w-6  hover:text-indigo-600" />
-          </button>
+            <p className="w-5 h-5  text-white text-[12px] bg-red-900 rounded-full text-center flex justify-center items-center ">
+              {carts.length}
+            </p>
+
+          </Link>
         </div>
       </div>
       </header>)}

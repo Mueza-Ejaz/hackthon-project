@@ -5,8 +5,11 @@ import Image from "next/image";
 import Link from "next/link";
 import ClerkButtons from "./ClerkButtons"; // Importing the new client component
 import { UserButton } from "@clerk/nextjs";
+import { useAtom } from "jotai";
+import { cartsItems } from "@/statelibrary";
 
 const Header = () => {
+
   return (
     <div className="max-w-full mx-auto flex flex-wrap justify-between items-center px-4 py-2 bg-[#F5F5F5]">
       {/* Logo Section */}
