@@ -6,8 +6,9 @@ import { useAtom } from "jotai";
 import Image from "next/image";
 import { useState, useEffect } from "react";
 import { ClipLoader } from "react-spinners";
+import { toast } from "react-hot-toast";
 
-interface Products {
+interface Product {
   image: string;
   description: string;
   price: number;
@@ -19,100 +20,81 @@ interface Products {
   _id: string;
 }
 
+interface CartItem extends Product {
+  quantity: number;
+  selectedColor: string;
+}
+
 interface Params {
   id: string;
 }
 
-const ProductDetail = ({ params }: { params: Params }) => { 
-  const [carts, setCarts] = useAtom<Products[]>(cartsItems);
-  const [product, setProduct] = useState<Products | null>(null);
-  const [isAddedToCart, setIsAddedToCart] = useState(false);
-  const [cartCount, setCartCount] = useState(0);
-  const [cartTotal, setCartTotal] = useState(0);
-  const [cart, setCart] = useState<any[]>([]);
-  const [quantity, setQuantity] = useState(1);  // Default quantity
-  const [selectedColor, setSelectedColor] = useState<string | null>(null);  // For color selection
+const ProductDetail = ({ params }: { params: Params }) => {
+  const [cart, setCart] = useAtom<CartItem[]>(cartsItems);
+  const [product, setProduct] = useState<Product | null>(null);
+  const [quantity, setQuantity] = useState(1);
+  const [selectedColor, setSelectedColor] = useState<string | null>(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchProduct = async () => {
-      const query: string = `*[_type == "product" && _id == "${params.id}"]{
-        colors,_id,
-        status,
-        category,
-        price,
-        description,
-        "image":image.asset->url,
-        inventory,
-        productName
-      }[0]`;
+      try {
+        const query = `*[_type == "product" && _id == "${params.id}"]{
+          colors,_id,
+          status,
+          category,
+          price,
+          description,
+          "image":image.asset->url,
+          inventory,
+          productName
+        }[0]`;
 
-      const fetchedProduct: Products = await client.fetch(query);
-      setProduct(fetchedProduct);
+        const fetchedProduct: Product = await client.fetch(query);
+        setProduct(fetchedProduct);
+      } catch (error) {
+        console.error("Error fetching product:", error);
+        toast.error("Failed to load product");
+      } finally {
+        setLoading(false);
+      }
     };
 
     fetchProduct();
   }, [params.id]);
 
-  useEffect(() => {
-    const cartData = JSON.parse(localStorage.getItem("cart") || "[]");
-    setCart(cartData);
-
-    // Correct cart quantity calculation
-    const totalItems = cartData.reduce((acc: number, item: any) => acc + (item.quantity || 0), 0);
-    const totalPrice = cartData.reduce((acc: number, item: any) => acc + ((item.price || 0) * (item.quantity || 1)), 0);
-
-    setCartCount(totalItems);
-    setCartTotal(totalPrice);
-  }, []);
-
-  const addToCart = () => {
-    if (!product) {
-      console.error("Product is undefined, cannot add to cart.");
-      return;
-    }
-
-    setCart([...carts, product]);
-  };
-
   const handleAddToCart = () => {
     if (!product || !selectedColor) return;
 
-    const cartItem = {
-      _id: product._id,
-      productName: product.productName,
-      price: product.price * quantity,
-      image: product.image,
-      quantity,
-      color: selectedColor,  // Store the selected color
-    };
-
-    let updatedCart = [...cart];
-    const existingProductIndex = updatedCart.findIndex(
-      (item: any) => item._id === cartItem._id && item.color === cartItem.color
+    const existingItem = cart.find(
+      (item) => item._id === product._id && item.selectedColor === selectedColor
     );
 
-    if (existingProductIndex >= 0) {
-      updatedCart[existingProductIndex].quantity += quantity;
+    if (existingItem) {
+      if (existingItem.quantity + quantity > product.inventory) {
+        toast.error("Exceeds available inventory");
+        return;
+      }
+      const updatedCart = cart.map((item) =>
+        item._id === product._id && item.selectedColor === selectedColor
+          ? { ...item, quantity: item.quantity + quantity }
+          : item
+      );
+      setCart(updatedCart);
     } else {
-      updatedCart.push(cartItem);
+      const newItem: CartItem = {
+        ...product,
+        quantity,
+        selectedColor,
+      };
+      setCart([...cart, newItem]);
     }
 
-    localStorage.setItem("cart", JSON.stringify(updatedCart));
-    setCart(updatedCart);
-    setIsAddedToCart(true);
-
-    // Update cart count and total
-    const totalItems = updatedCart.reduce((acc: number, item: any) => acc + item.quantity, 0);
-    const totalPrice = updatedCart.reduce((acc: number, item: any) => acc + (item.price * item.quantity), 0);
-
-    setCartCount(totalItems);
-    setCartTotal(totalPrice);
-
-    setTimeout(() => setIsAddedToCart(false), 2000);
+    toast.success("Added to cart!");
   };
 
   const increaseQuantity = () => {
-    if (product?.inventory && quantity < product.inventory) {
+    if (product && quantity < product.inventory) {
       setQuantity(quantity + 1);
     }
   };
@@ -123,7 +105,7 @@ const ProductDetail = ({ params }: { params: Params }) => {
     }
   };
 
-  if (!product) {
+  if (loading) {
     return (
       <div className="container mx-auto flex justify-center items-center h-40 min-h-screen">
         <ClipLoader color="#3b82f6" size={50} />
@@ -131,69 +113,104 @@ const ProductDetail = ({ params }: { params: Params }) => {
     );
   }
 
+  if (!product) {
+    return (
+      <div className="container mx-auto text-center py-8">
+        <p className="text-red-500">Product not found</p>
+      </div>
+    );
+  }
+
   return (
-    <div className="container mx-auto px-4 py-6 md:px-6 md:py-8 min-h-screen flex justify-center items-center">
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 bg-white shadow-lg rounded-lg p-6 md:p-8">
-        <div className="relative w-full h-72 md:h-96">
+    <div className="container mx-auto px-4 py-8 min-h-screen">
+      <div className="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-8">
+        <div className="relative aspect-square bg-gray-100 rounded-xl overflow-hidden shadow-lg">
           <Image
             src={product.image}
             alt={product.productName}
-            layout="fill"
-            objectFit="cover"
-            className="rounded-lg shadow-sm border-2 border-zinc-900 "
+            fill
+            className="object-cover"
+            priority
           />
         </div>
-        <div className="flex flex-col space-y-4">
-          <h1 className="text-2xl md:text-3xl font-extrabold text-gray-800">{product.productName}</h1>
 
-          <p className="text-base md:text-lg text-gray-700 leading-relaxed">{product.description}</p>
+        <div className="space-y-6">
+          <h1 className="text-3xl font-bold text-gray-900">
+            {product.productName}
+          </h1>
           
-          <p className="text-xl md:text-2xl font-semibold text-blue-600">RS {product.price.toFixed(2)}</p>
+          <p className="text-2xl font-semibold text-blue-600">
+            Rs {product.price.toFixed(2)}
+          </p>
 
-          {/* Quantity Adjuster */}
-          <div className="flex items-center space-x-4 mt-4">
-            <button
-              onClick={decreaseQuantity}
-              className="px-3 py-1 bg-gray-200 text-gray-700 rounded-full"
-            >
-              -
-            </button>
-            <span className="text-xl font-semibold">{quantity}</span>
-            <button
-              onClick={increaseQuantity}
-              className="px-3 py-1 bg-gray-200 text-gray-700 rounded-full"
-            >
-              +
-            </button>
-          </div>
+          <p className="text-gray-600 leading-relaxed">
+            {product.description}
+          </p>
 
-          <div className="flex items-center space-x-4 mt-4">
-            <span className="text-gray-700">Select Color:</span>
-            <div className="flex space-x-1">
-              {product.colors.map((color, index) => (
-                <div
-                  key={index}
-                  onClick={() => setSelectedColor(color)}
-                  className={`w-8 h-8 rounded-full border-2 cursor-pointer ${selectedColor === color ? "border-black" : "border-gray-300"}`}
-                  style={{ backgroundColor: color }}
-                ></div>
-              ))}
+          <div className="space-y-4">
+            <div className="flex items-center gap-2">
+              <span className="font-medium">Colors:</span>
+              <div className="flex gap-2">
+                {product.colors.map((color) => (
+                  <button
+                    key={color}
+                    onClick={() => setSelectedColor(color)}
+                    className={`w-8 h-8 rounded-full border-2 ${
+                      selectedColor === color
+                        ? "border-blue-500"
+                        : "border-gray-300"
+                    }`}
+                    style={{ backgroundColor: color }}
+                  />
+                ))}
+              </div>
+            </div>
+
+            <div className="flex items-center gap-2">
+              <span className="font-medium">Quantity:</span>
+              <div className="flex items-center gap-3 border rounded-lg px-4 py-2">
+                <button
+                  onClick={decreaseQuantity}
+                  disabled={quantity === 1}
+                  className="text-gray-500 hover:text-gray-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  -
+                </button>
+                <span className="w-8 text-center">{quantity}</span>
+                <button
+                  onClick={increaseQuantity}
+                  disabled={quantity >= product.inventory}
+                  className="text-gray-500 hover:text-gray-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  +
+                </button>
+              </div>
+              <span className="text-sm text-gray-500">
+                {product.inventory} available
+              </span>
             </div>
           </div>
 
-          {/* Centered Add to Cart Button */}
-          <div className="flex justify-center mt-6">
-            <button
-              onClick={handleAddToCart}
-              className="w-1/2 sm:w-1/3 lg:w-1/4 px-4 py-2 bg-blue-600 text-white font-bold rounded-lg shadow-md hover:bg-blue-700 transition duration-300"
-            >
-              {isAddedToCart ? "Added to Cart!" : "Add to Cart"}
-            </button>
-          </div>
+          <button
+            onClick={handleAddToCart}
+            disabled={!selectedColor}
+            className="w-full bg-blue-600 text-white py-3 px-6 rounded-lg font-medium hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            Add to Cart
+          </button>
 
-          {isAddedToCart && (
-            <p className="text-green-600 mt-2 text-center">Product added to your cart!</p>
+          {!selectedColor && (
+            <p className="text-red-500 text-sm">Please select a color</p>
           )}
+
+          <div className="pt-4 border-t border-gray-200">
+            <p className="text-sm text-gray-500">
+              Category: {product.category}
+            </p>
+            <p className="text-sm text-gray-500">
+              Status: {product.status}
+            </p>
+          </div>
         </div>
       </div>
     </div>
