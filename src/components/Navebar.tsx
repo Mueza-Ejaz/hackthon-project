@@ -82,7 +82,7 @@ export function Navebar() {
           </button>
           <Link className="flex" href={'/carts'}>
             <ShoppingBag className="h-6 w-6  hover:text-indigo-600" />
-            <p className="w-5 h-5  text-white text-[12px] bg-red-900 rounded-full text-center flex justify-center items-center ">
+            <p className="w-5 h-5 mr-2  text-white text-[12px] bg-red-900 rounded-full text-center flex justify-center items-center ">
               {carts.length}
             </p>
 
