@@ -8,7 +8,7 @@ import { cartsItems } from "@/statelibrary";
 
 export function Navebar() {
 
-  const[carts, setCarts] = useAtom(cartsItems)
+  const[carts] = useAtom(cartsItems)
 
   return (
     <header className="w-full border-b bg-white">
