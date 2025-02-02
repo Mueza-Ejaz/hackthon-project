@@ -1,6 +1,6 @@
 "use client";
 
-import { SignIn } from "@clerk/nextjs";
+import { SignInButton } from "@clerk/nextjs";
 import Header from "@/components/Header";
 import Navebar from "@/components/Navebar";
 import Footer from "@/components/Footer";
@@ -10,9 +10,11 @@ const SignInPage = () => {
     <div>
       <Header />
       <Navebar />
-      <div className="flex justify-center items-center min-h-screen">
-        <SignIn />
-      </div>
+      <SignInButton>
+//        <button className="bg-blue-500 py-[5px] hover:bg-blue-800 px-[10px] text-white text-sm rounded-md">
+//         Sign In
+//       </button>
+//     </SignInButton>
       <Footer />
     </div>
   );

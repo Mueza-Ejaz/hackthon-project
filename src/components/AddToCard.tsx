@@ -2,7 +2,7 @@ import React from "react"
 import Image from "next/image"
 
 
-const AddToCart = () => {
+const AddToCart = (id: any, color: any, amount: any, product: any) => {
   return (
     <div className="container mx-auto px-4 py-16">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-start">
@@ -33,10 +33,15 @@ const AddToCart = () => {
             <div className="flex items-center justify-between">
               <div className="text-2xl font-bold">₹ 8,695.00</div>
             </div>
-            
+
+            <div onClick={() => AddToCart(id, color, amount, product)}>
+
             <button className="w-full md:w-auto px-8 bg-black hover:bg-gray-600 rounded-3xl text-white p-2">
               Add To Cart
             </button>
+            </div>
+            
+
           </div>
         </div>
       </div>
