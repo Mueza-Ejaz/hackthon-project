@@ -20,6 +20,7 @@ interface Product {
 }
 
 const Products = () => {
+  
   const [products, setProducts] = React.useState<Product[]>([]); // State for products
   const [currentIndex, setCurrentIndex] = React.useState(0); // State for slider index
   const slideRef = React.useRef<HTMLDivElement>(null); // Reference for slider
