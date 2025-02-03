@@ -3,7 +3,6 @@ import { wishlistItems } from '@/statelibrary';  // Import wishlist atom
 import { useAtom } from 'jotai'; // Use atom hook
 import { FaHeart } from 'react-icons/fa'; 
 import Image from 'next/image';
-import { useState } from 'react';
 import Link from 'next/link';
 
 interface Product {
