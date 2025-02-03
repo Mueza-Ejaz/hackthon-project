@@ -9,7 +9,7 @@ import { UserButton } from "@clerk/nextjs";
 const Header = () => {
 
   return (
-    <div className="max-w-full mx-auto flex flex-wrap justify-between items-center px-4 py-2 bg-[#F5F5F5]">
+    <div className="max-w-full mx-auto flex flex-wrap justify-between items-center md:px-4 py-2 bg-[#F5F5F5]">
       {/* Logo Section */}
       <div className="flex items-center">
         <Image
@@ -22,7 +22,7 @@ const Header = () => {
       </div>
 
       {/* Navigation Section */}
-      <div className="flex flex-wrap justify-center items-center gap-3 text-sm sm:text-base mr-5">
+      <div className="flex flex-wrap justify-center items-center gap-3 text-sm sm:text-base">
         <span className="hidden sm:inline">Find a Store</span>
         <span className="hidden sm:inline">|</span>
         <Link href="/getHelp" className="text-black hover:underline">

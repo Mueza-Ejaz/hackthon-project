@@ -4,15 +4,16 @@ import Image from "next/image";
 import { Search, Heart, ShoppingBag } from "lucide-react";
 import Link from "next/link";
 import { useAtom } from "jotai";
-import { cartsItems, searchValue } from "@/statelibrary";
+import { cartsItems, searchValue, wishlistItems } from "@/statelibrary";
 
 export function Navebar() {
 
   const[carts] = useAtom(cartsItems)
   const[searchVal,setSearchVal] = useAtom(searchValue)
+  const [wishlist] = useAtom(wishlistItems); 
 
   return (
-    <header className="w-full border-b bg-white">
+    <header className="w-full border-b bg-white px-4 md:px-0">
       <div className="container mx-auto flex h-16 items-center justify-between px-auto lg:px-auto">
         {/* Logo */}
         <div className="flex items-center">
@@ -80,10 +81,17 @@ export function Navebar() {
               className="ml-2 bg-transparent text-sm outline-none placeholder:text-gray-500"
             />
           </div>
-          <Link href={'/wishlistItems'}>
-            <Heart className="h-6 w-6 hover:text-red-600" />
-          </Link>
-          <Link href="/carts" className="relative flex items-center">
+         
+<Link href="/wishlistItems" className="relative flex items-center">
+  <Heart className="h-6 w-6 hover:text-indigo-600" />
+  {wishlist.length > 0 && (
+    <span className="absolute -top-2 -right-2 flex h-5 w-5 items-center justify-center rounded-full bg-red-900 text-white text-[10px]">
+      {wishlist.length}
+    </span>
+  )}
+</Link>
+
+<Link href="/carts" className="relative flex items-center">
   <ShoppingBag className="h-6 w-6 hover:text-indigo-600" />
   {carts.length > 0 && (
     <span className="absolute -top-2 -right-2 flex h-5 w-5 items-center justify-center rounded-full bg-red-900 text-white text-[10px]">
