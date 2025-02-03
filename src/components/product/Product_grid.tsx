@@ -1,6 +1,5 @@
 import { client } from "@/sanity/lib/client";
 import Cart from "../Cart";
-import Link from "next/link";
 
 interface Products {
   id: number;
