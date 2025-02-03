@@ -8,6 +8,7 @@ import { useState, useEffect } from "react";
 import { ClipLoader } from "react-spinners";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { motion } from "framer-motion";
 
 interface Product {
   image: string;
@@ -37,72 +38,56 @@ const ProductDetail = ({ params }: { params: Params }) => {
   const [selectedColor, setSelectedColor] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
 
-
-
-  
-  
-  
-  
+  // بیک اینڈ سے پروڈکٹ ڈیٹا لوڈ کرنا
   useEffect(() => {
-    
     const fetchProduct = async () => {
       try {
         const query = `*[_type == "product" && _id == "${params.id}"]{
-          colors,_id,
-          status,
-          category,
-          price,
-          description,
-          "image":image.asset->url,
-          inventory,
-          productName
-          }[0]`;
-          
-          const fetchedProduct: Product = await client.fetch(query);
-          setProduct(fetchedProduct);
-        } catch (error) {
-          console.error("Error fetching product:", error);
-          toast.error("Failed to load product");
-        } finally {
-          setLoading(false);
+          colors,_id, status, category, price, description,
+          "image":image.asset->url, inventory, productName
+        }[0]`;
+
+        const fetchedProduct: Product = await client.fetch(query);
+        setProduct(fetchedProduct);
+
+        // بائی ڈیفالٹ پہلا رنگ منتخب کریں (اگر دستیاب ہو)
+        if (fetchedProduct?.colors?.length > 0) {
+          setSelectedColor(fetchedProduct.colors[0]);
         }
-      };
-      
-      fetchProduct();
-    }, [params.id]);
-    
-    const AddtoCartSound = ()=>{
-      const audio = new Audio('/sounds/sound.wav');
-      audio.play();
-    }
-
-    const ClickSound = ()=>{
-      const audio = new Audio('/sounds/mouse.mp3');
-      audio.play();
-    }
-
-
-
-
-
-
-
-    const handleAddToCart = () => {
-      if (!product || !selectedColor) return;
-      
-      const existingItem = cart.find(
-        (item) => item._id === product._id && item.selectedColor === selectedColor
-      );
-      
-      if (existingItem) {
-        if (existingItem.quantity + quantity > product.inventory) {
-          toast.error("Exceeds available inventory");
-          return;
+      } catch (error) {
+        console.error("Error fetching product:", error);
+        toast.error("Failed to load product");
+      } finally {
+        setLoading(false);
       }
+    };
+
+    fetchProduct();
+  }, [params.id]);
+
+  // ساؤنڈ ایفیکٹس کے فنکشنز
+  const playSound = (filePath: string) => {
+    const audio = new Audio(filePath);
+    audio.play().catch((error) => console.error("Audio play error:", error));
+  };
+
+  const handleAddToCart = () => {
+    if (!product || !selectedColor) return;
+
+    const existingItem = cart.find(
+      (item) => item._id === product._id && item.selectedColor === selectedColor
+    );
+
+    if (existingItem) {
+      if (existingItem.quantity + quantity > product.inventory) {
+        toast.error("Exceeds available inventory");
+        return;
+      }
+
       const updatedCart = cart.map((item) =>
         item._id === product._id && item.selectedColor === selectedColor
-      ? { ...item, quantity: item.quantity + quantity }
-      : item
+          ? { ...item, quantity: item.quantity + quantity }
+          : item
       );
       setCart(updatedCart);
     } else {
@@ -113,24 +98,22 @@ const ProductDetail = ({ params }: { params: Params }) => {
       };
       setCart([...cart, newItem]);
     }
-    
-    
+
     toast.success("Added to cart!");
-    AddtoCartSound()
+    playSound("/sounds/sound.wav");
   };
-  
+
   const increaseQuantity = () => {
     if (product && quantity < product.inventory) {
       setQuantity(quantity + 1);
-      ClickSound()
-    
+      playSound("/sounds/mouse.mp3");
     }
   };
 
   const decreaseQuantity = () => {
     if (quantity > 1) {
       setQuantity(quantity - 1);
-      ClickSound()
+      playSound("/sounds/mouse.mp3");
     }
   };
 
@@ -151,11 +134,18 @@ const ProductDetail = ({ params }: { params: Params }) => {
   }
 
   return (
-    <div className="container mx-auto px-4 py-8 min-h-screen">
-  
-
+    <motion.div
+      className="container mx-auto px-4 py-8 min-h-screen"
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.5 }}
+    >
       <div className="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-8">
-        <div className="relative aspect-square bg-gray-100 rounded-xl overflow-hidden shadow-lg">
+        {/* Image Section */}
+        <motion.div
+          className="relative aspect-square bg-gray-100 rounded-xl overflow-hidden shadow-lg"
+          whileHover={{ scale: 1.02 }}
+        >
           <Image
             src={product.image}
             alt={product.productName}
@@ -163,8 +153,9 @@ const ProductDetail = ({ params }: { params: Params }) => {
             className="object-cover"
             priority
           />
-        </div>
+        </motion.div>
 
+        {/* Product Details */}
         <div className="space-y-6">
           <h1 className="text-3xl font-bold text-gray-900">
             {product.productName}
@@ -174,16 +165,15 @@ const ProductDetail = ({ params }: { params: Params }) => {
             Rs {product.price.toFixed(2)}
           </p>
 
-          <p className="text-gray-600 leading-relaxed">
-            {product.description}
-          </p>
+          <p className="text-gray-600 leading-relaxed">{product.description}</p>
 
           <div className="space-y-4">
+            {/* Colors */}
             <div className="flex items-center gap-2">
               <span className="font-medium">Colors:</span>
               <div className="flex gap-2">
                 {product.colors.map((color) => (
-                  <button
+                  <motion.button
                     key={color}
                     onClick={() => setSelectedColor(color)}
                     className={`w-8 h-8 rounded-full border-2 ${
@@ -192,11 +182,13 @@ const ProductDetail = ({ params }: { params: Params }) => {
                         : "border-gray-300"
                     }`}
                     style={{ backgroundColor: color }}
+                    whileHover={{ scale: 1.2 }}
                   />
                 ))}
               </div>
             </div>
 
+            {/* Quantity */}
             <div className="flex items-center gap-2">
               <span className="font-medium">Quantity:</span>
               <div className="flex items-center gap-3 border rounded-lg px-4 py-2">
@@ -222,31 +214,21 @@ const ProductDetail = ({ params }: { params: Params }) => {
             </div>
           </div>
 
-          <button
+          {/* Add to Cart Button */}
+          <motion.button
             onClick={handleAddToCart}
             disabled={!selectedColor}
             className="w-full bg-blue-600 text-white py-3 px-6 rounded-lg font-medium hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            whileTap={{ scale: 0.95 }}
           >
             Add to Cart
-          </button>
-
-          {!selectedColor && (
-            <p className="text-red-500 text-sm">Please select a color</p>
-          )}
-
-          <div className="pt-4 border-t border-gray-200">
-            <p className="text-sm text-gray-500">
-              Category: {product.category}
-            </p>
-            <p className="text-sm text-gray-500">
-              Status: {product.status}
-            </p>
-          </div>
+          </motion.button>
         </div>
       </div>
-      {/* ToastContainer added to ensure toast notifications work */}
+
+      {/* Toast Notification */}
       <ToastContainer position="top-right" autoClose={3000} />
-    </div>
+    </motion.div>
   );
 };
 
