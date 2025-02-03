@@ -7,8 +7,17 @@ import Image from 'next/image';
 
 export default function CartPage() {
   const [carts, setCarts] = useAtom(cartsItems);
+  const ClickSound = ()=>{
+    const audio = new Audio('/sounds/mouse.mp3');
+    audio.play();
+  }
+  const DeleteSound = ()=>{
+    const audio = new Audio('/sounds/sound.wav');
+    audio.play();
+  }
 
   const updateQuantity = (id: string, amount: number) => {
+    ClickSound()
     setCarts((prevCart) =>
       prevCart.map((item) =>
         item._id === id ? { ...item, quantity: Math.max(1, item.quantity + amount) } : item
@@ -18,7 +27,10 @@ export default function CartPage() {
 
   const removeItem = (id: string) => {
     setCarts((prevCart) => prevCart.filter((item) => item._id !== id));
+    DeleteSound()
   };
+
+
 
   const subtotal = carts.reduce((total, item) => total + item.price * item.quantity, 0);
 
