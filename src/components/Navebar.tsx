@@ -77,9 +77,9 @@ export function Navebar() {
               className="ml-2 bg-transparent text-sm outline-none placeholder:text-gray-500"
             />
           </div>
-          <button>
+          <Link href={'/wishlistItems'}>
             <Heart className="h-6 w-6 hover:text-red-600" />
-          </button>
+          </Link>
           <Link href="/carts" className="relative flex items-center">
   <ShoppingBag className="h-6 w-6 hover:text-indigo-600" />
   {carts.length > 0 && (
