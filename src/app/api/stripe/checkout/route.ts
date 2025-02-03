@@ -65,7 +65,7 @@ export const POST = async (req: NextRequest) => {
       line_items: lineItems,
       mode: 'payment',
       // Append the total amount (in cents) as a query parameter to the success URL
-      success_url: `${baseUrl}/success?total=${Math.round(totalPrice * 100)}`,
+      success_url: `${baseUrl}/success`,
       cancel_url: `${baseUrl}/cancel`,
       // Alternatively, you can pass the total in metadata:
       // metadata: { total: Math.round(totalPrice * 100).toString() },
