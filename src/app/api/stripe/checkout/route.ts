@@ -28,11 +28,6 @@ export const POST = async (req: NextRequest) => {
       return NextResponse.json({ error: "Invalid billing details" }, { status: 400 });
     }
 
-    // Calculate the overall total price (in dollars)
-    const totalPrice = addCart.reduce(
-      (acc: number, item: CartItem) => acc + item.price * item.quantity,
-      0
-    );
 
     // Map cart items to Stripe line items
     const lineItems = addCart.map((item: CartItem) => {
@@ -48,7 +43,7 @@ export const POST = async (req: NextRequest) => {
             images: [item.image],
             metadata: {
               heading: 'Product Details',
-              // You can add more metadata if needed (for example, selectedColor)
+           
             },
           },
           // Use the unit price (in cents)
@@ -64,11 +59,10 @@ export const POST = async (req: NextRequest) => {
       payment_method_types: ['card'],
       line_items: lineItems,
       mode: 'payment',
-      // Append the total amount (in cents) as a query parameter to the success URL
+   
       success_url: `${baseUrl}/success`,
       cancel_url: `${baseUrl}/cancel`,
-      // Alternatively, you can pass the total in metadata:
-      // metadata: { total: Math.round(totalPrice * 100).toString() },
+
     });
 
     // Return session ID
