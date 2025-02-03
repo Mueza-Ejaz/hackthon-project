@@ -9,6 +9,7 @@ import { useAtom } from "jotai";
 import { cartsItems } from "@/statelibrary";
 
 const OrderSuccessPage = () => {
+
    const [, setCarts] = useAtom(cartsItems);
   const [isLoading, setIsLoading] = useState(true);
   const [isExiting, setIsExiting] = useState(false); // Tracks exit animation
@@ -22,16 +23,16 @@ const OrderSuccessPage = () => {
 
 
 
-  useEffect(() => {
-    // Simulate a fake loading for 2 seconds
-    const timer = setTimeout(() => {
-      setCarts([]);
-      setIsLoading(false);
-      Thankyou()
-    }, 3000);
+useEffect(() => {
+  // Simulate a fake loading for 3 seconds
+  const timer = setTimeout(() => {
+    setCarts([]);
+    setIsLoading(false);
+    Thankyou();
+  }, 3000);
 
-    return () => clearTimeout(timer);
-  }, []);
+  return () => clearTimeout(timer);
+}, [setCarts]); 
 
   const handleContinueShopping = () => {
     setIsExiting(true); // Trigger exit animation
