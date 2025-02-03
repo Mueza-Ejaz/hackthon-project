@@ -38,7 +38,7 @@ const ProductDetail = ({ params }: { params: Params }) => {
   const [selectedColor, setSelectedColor] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
 
-  // بیک اینڈ سے پروڈکٹ ڈیٹا لوڈ کرنا
+ 
   useEffect(() => {
     const fetchProduct = async () => {
       try {
@@ -50,7 +50,7 @@ const ProductDetail = ({ params }: { params: Params }) => {
         const fetchedProduct: Product = await client.fetch(query);
         setProduct(fetchedProduct);
 
-        // بائی ڈیفالٹ پہلا رنگ منتخب کریں (اگر دستیاب ہو)
+
         if (fetchedProduct?.colors?.length > 0) {
           setSelectedColor(fetchedProduct.colors[0]);
         }
@@ -65,7 +65,7 @@ const ProductDetail = ({ params }: { params: Params }) => {
     fetchProduct();
   }, [params.id]);
 
-  // ساؤنڈ ایفیکٹس کے فنکشنز
+
   const playSound = (filePath: string) => {
     const audio = new Audio(filePath);
     audio.play().catch((error) => console.error("Audio play error:", error));
