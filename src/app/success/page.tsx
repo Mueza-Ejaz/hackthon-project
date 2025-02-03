@@ -16,29 +16,23 @@ const OrderSuccessPage = () => {
   const router = useRouter();
 
 
-  const Thankyou = ()=>{
-    const audio = new Audio('/studio/thankyou.mp3');
-    audio.play();
-  }
-
 
 
 useEffect(() => {
-  // Simulate a fake loading for 3 seconds
+  // Simulate a fake loading for 2 seconds
   const timer = setTimeout(() => {
     setCarts([]);
     setIsLoading(false);
-    Thankyou();
-  }, 3000);
+    }, 2000);
 
   return () => clearTimeout(timer);
 }, [setCarts]); 
 
   const handleContinueShopping = () => {
-    setIsExiting(true); // Trigger exit animation
+    setIsExiting(true); 
     setTimeout(() => {
-      router.push("/"); // Navigate to products after animation
-    }, 500); // Match exit animation duration
+      router.push("/"); 
+    }, 500); 
   };
 
   return (
