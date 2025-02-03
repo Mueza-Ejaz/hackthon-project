@@ -6,7 +6,8 @@ import { useAtom } from "jotai";
 import Image from "next/image";
 import { useState, useEffect } from "react";
 import { ClipLoader } from "react-spinners";
-import { toast } from "react-hot-toast";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 interface Product {
   image: string;
@@ -36,7 +37,14 @@ const ProductDetail = ({ params }: { params: Params }) => {
   const [selectedColor, setSelectedColor] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
 
+
+
+  
+  
+  
+  
   useEffect(() => {
+    
     const fetchProduct = async () => {
       try {
         const query = `*[_type == "product" && _id == "${params.id}"]{
@@ -48,37 +56,53 @@ const ProductDetail = ({ params }: { params: Params }) => {
           "image":image.asset->url,
           inventory,
           productName
-        }[0]`;
+          }[0]`;
+          
+          const fetchedProduct: Product = await client.fetch(query);
+          setProduct(fetchedProduct);
+        } catch (error) {
+          console.error("Error fetching product:", error);
+          toast.error("Failed to load product");
+        } finally {
+          setLoading(false);
+        }
+      };
+      
+      fetchProduct();
+    }, [params.id]);
+    
+    const AddtoCartSound = ()=>{
+      const audio = new Audio('/sounds/sound.wav');
+      audio.play();
+    }
 
-        const fetchedProduct: Product = await client.fetch(query);
-        setProduct(fetchedProduct);
-      } catch (error) {
-        console.error("Error fetching product:", error);
-        toast.error("Failed to load product");
-      } finally {
-        setLoading(false);
-      }
-    };
+    const ClickSound = ()=>{
+      const audio = new Audio('/sounds/mouse.mp3');
+      audio.play();
+    }
 
-    fetchProduct();
-  }, [params.id]);
 
-  const handleAddToCart = () => {
-    if (!product || !selectedColor) return;
 
-    const existingItem = cart.find(
-      (item) => item._id === product._id && item.selectedColor === selectedColor
-    );
 
-    if (existingItem) {
-      if (existingItem.quantity + quantity > product.inventory) {
-        toast.error("Exceeds available inventory");
-        return;
+
+
+
+    const handleAddToCart = () => {
+      if (!product || !selectedColor) return;
+      
+      const existingItem = cart.find(
+        (item) => item._id === product._id && item.selectedColor === selectedColor
+      );
+      
+      if (existingItem) {
+        if (existingItem.quantity + quantity > product.inventory) {
+          toast.error("Exceeds available inventory");
+          return;
       }
       const updatedCart = cart.map((item) =>
         item._id === product._id && item.selectedColor === selectedColor
-          ? { ...item, quantity: item.quantity + quantity }
-          : item
+      ? { ...item, quantity: item.quantity + quantity }
+      : item
       );
       setCart(updatedCart);
     } else {
@@ -89,19 +113,24 @@ const ProductDetail = ({ params }: { params: Params }) => {
       };
       setCart([...cart, newItem]);
     }
-
+    
+    
     toast.success("Added to cart!");
+    AddtoCartSound()
   };
-
+  
   const increaseQuantity = () => {
     if (product && quantity < product.inventory) {
       setQuantity(quantity + 1);
+      ClickSound()
+    
     }
   };
 
   const decreaseQuantity = () => {
     if (quantity > 1) {
       setQuantity(quantity - 1);
+      ClickSound()
     }
   };
 
@@ -123,6 +152,8 @@ const ProductDetail = ({ params }: { params: Params }) => {
 
   return (
     <div className="container mx-auto px-4 py-8 min-h-screen">
+  
+
       <div className="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-8">
         <div className="relative aspect-square bg-gray-100 rounded-xl overflow-hidden shadow-lg">
           <Image
@@ -138,7 +169,7 @@ const ProductDetail = ({ params }: { params: Params }) => {
           <h1 className="text-3xl font-bold text-gray-900">
             {product.productName}
           </h1>
-          
+
           <p className="text-2xl font-semibold text-blue-600">
             Rs {product.price.toFixed(2)}
           </p>
@@ -213,6 +244,8 @@ const ProductDetail = ({ params }: { params: Params }) => {
           </div>
         </div>
       </div>
+      {/* ToastContainer added to ensure toast notifications work */}
+      <ToastContainer position="top-right" autoClose={3000} />
     </div>
   );
 };

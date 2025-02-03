@@ -80,13 +80,15 @@ export function Navebar() {
           <button>
             <Heart className="h-6 w-6 hover:text-red-600" />
           </button>
-          <Link className="flex" href={'/carts'}>
-            <ShoppingBag className="h-6 w-6  hover:text-indigo-600" />
-            <p className="w-5 h-5 mr-2  text-white text-[12px] bg-red-900 rounded-full text-center flex justify-center items-center ">
-              {carts.length}
-            </p>
+          <Link href="/carts" className="relative flex items-center">
+  <ShoppingBag className="h-6 w-6 hover:text-indigo-600" />
+  {carts.length > 0 && (
+    <span className="absolute -top-2 -right-2 flex h-5 w-5 items-center justify-center rounded-full bg-red-900 text-white text-[10px]">
+      {carts.length}
+    </span>
+  )}
+</Link>
 
-          </Link>
         </div>
       </div>
       </header>)}
