@@ -13,6 +13,32 @@ export interface Product {
   colors: string[];
   productName: string;
 }
+export interface Billing{
+  fullName: string;
+  email: string;
+  phoneNumber: string;
+  addressLine1: string;
+  addressLine2?: string;
+  city: string;
+}
+
+
+
+const initialBillingDetails:Billing = {
+  fullName: "shahoz",
+  phoneNumber: "03003666930",
+  email: "s@gmail.com",
+  addressLine1: "12",
+  addressLine2: "",
+  city: "karachi",
+}
+
+
+export const customerFormDetails = atom<Billing>(initialBillingDetails);
+
+
+
+
 
 // Cart Item Type (extending Product)
 export interface CartItem extends Product {
