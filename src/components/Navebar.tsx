@@ -4,11 +4,12 @@ import Image from "next/image";
 import { Search, Heart, ShoppingBag } from "lucide-react";
 import Link from "next/link";
 import { useAtom } from "jotai";
-import { cartsItems } from "@/statelibrary";
+import { cartsItems, searchValue } from "@/statelibrary";
 
 export function Navebar() {
 
   const[carts] = useAtom(cartsItems)
+  const[searchVal,setSearchVal] = useAtom(searchValue)
 
   return (
     <header className="w-full border-b bg-white">
@@ -73,6 +74,8 @@ export function Navebar() {
             <Search className="h-4 w-4 text-gray-500" />
             <input
               type="text"
+              onChange={(event)=>setSearchVal(event.target.value)}
+              value={searchVal}
               placeholder="Search"
               className="ml-2 bg-transparent text-sm outline-none placeholder:text-gray-500"
             />

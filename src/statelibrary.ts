@@ -1,3 +1,4 @@
+import { atom } from "jotai";
 import { atomWithStorage } from "jotai/utils";
 
 // Product Type
@@ -24,3 +25,4 @@ export const cartsItems = atomWithStorage<CartItem[]>("cartItems", []);
 
 // Wishlist items atom (using local storage)
 export const wishlistItems = atomWithStorage<Product[]>("wishlistItems", []);
+export const searchValue = atom<string>('');
