@@ -25,18 +25,16 @@ export interface Billing{
 
 
 const initialBillingDetails:Billing = {
-  fullName: "shahoz",
-  phoneNumber: "03003666930",
-  email: "s@gmail.com",
-  addressLine1: "12",
+  fullName: "",
+  phoneNumber: "",
+  email: "",
+  addressLine1: "",
   addressLine2: "",
-  city: "karachi",
+  city: "",
 }
 
 
 export const customerFormDetails = atom<Billing>(initialBillingDetails);
-
-
 
 
 
