@@ -1,41 +1,38 @@
-"use client";
+'use client';
 
-import { client } from "@/sanity/lib/client";
-import React, { useEffect, useState, useRef } from "react";
-import Image from "next/image";
-import { ChevronLeft, ChevronRight } from "lucide-react";
-import Link from "next/link";
+import React, { useEffect, useState } from 'react';
+import { client } from '@/sanity/lib/client';
+import Image from 'next/image';
+import Link from 'next/link';
+import { Swiper, SwiperSlide } from 'swiper/react';
+import { Navigation, Pagination, Autoplay } from 'swiper/modules';
+
+
+// Import Swiper styles
+import 'swiper/css';
+import 'swiper/css/navigation';
+import 'swiper/css/pagination';
 
 interface Product {
-  id: number;
-  image: string;
-  description: string;
-  price: number;
-  category: string;
-  status: string;
-  inventory: number;
-  colors: string[];
-  productName: string;
   _id: string;
+  image: string;
+  productName: string;
+  category: string;
+  price: number;
 }
 
-const GearUp = () => {
+const AutoSlider: React.FC = () => {
   const [products, setProducts] = useState<Product[]>([]);
-  const [currentIndex, setCurrentIndex] = useState(0);
-  const slideRef = useRef<HTMLDivElement>(null);
 
+  // Fetch products from Sanity
   useEffect(() => {
     const fetchProducts = async () => {
-      const query = `*[_type == "product"] | order(_createdAt desc)[0...4] {
-        colors,
+      const query = `*[_type == "product"] | order(_createdAt desc) {
         _id,
-        status,
-        category,
-        price,
-        description,
         "image": image.asset->url,
-        inventory,
-        productName
+        productName,
+        category,
+        price
       }`;
       const sanityProducts = await client.fetch(query);
       setProducts(sanityProducts);
@@ -44,93 +41,66 @@ const GearUp = () => {
     fetchProducts();
   }, []);
 
-  const next = () => {
-    if (currentIndex < products.length - 3) {
-      setCurrentIndex((prevIndex) => prevIndex + 1);
-    }
-  };
-
-  const prev = () => {
-    if (currentIndex > 0) {
-      setCurrentIndex((prevIndex) => prevIndex - 1);
-    }
-  };
-
-  useEffect(() => {
-    if (slideRef.current) {
-      slideRef.current.style.transform = `translateX(-${currentIndex * 33.33}%)`;
-    }
-  }, [currentIndex]);
+  if (products.length === 0) return <div>Loading...</div>;
 
   return (
     <div className="max-w-7xl mx-auto px-4 py-8">
-      <h2 className="text-2xl font-semibold mb-6">Gear Up</h2>
-      <div className="relative overflow-hidden">
-        {/* Left Arrow */}
-        <button
-          onClick={prev}
-          className="absolute left-0 top-1/2 transform -translate-y-1/2 bg-gray-300 hover:bg-gray-400 p-2 rounded-full z-10"
-          disabled={currentIndex === 0}
-          aria-label="Previous"
-        >
-          <ChevronLeft className="w-5 h-5" />
-        </button>
-
-        {/* Product Row */}
-        <div className="">
-          <div
-            ref={slideRef}
-            className="flex transition-transform duration-300 ease-out space-x-3"
-            style={{ width: `${products.length * 37.43}%` }}
-          >
-            {products.map((product) => (
-              <div
-                key={product._id}
-                className="w-1/4 flex-shrink-0 bg-white shadow-lg rounded-lg p-4 flex flex-col items-center"
-              >
-                <div
-                  className="relative bg-gradient-to-br  via-gray-300 to-gray-200 rounded-lg overflow-hidden mb-4 flex items-center justify-center shadow-md"
-                  style={{
-                    width: "100%",
-                    height: "300px",
-                  }}
-                >
-                  <Link href={`/allproduct/${product._id}`}>
-                    <Image
-                      src={product.image}
-                      alt={product.productName}
-                      layout="fill"
-                      objectFit="contain"
-                      className="w-full h-full"
-                    />
-                  </Link>
-                </div>
-                <h3 className="font-semibold text-sm truncate text-center">
+      <Swiper
+        modules={[Navigation, Pagination, Autoplay]}
+        spaceBetween={20}
+        slidesPerView={4}
+        navigation
+        pagination={{ clickable: true }}
+        autoplay={{ delay: 3000, disableOnInteraction: false }}
+        breakpoints={{
+          // when window width is >= 0px
+          0: {
+            slidesPerView: 1,
+          },
+          // when window width is >= 640px
+          640: {
+            slidesPerView: 1,
+          },
+          // when window width is >= 768px
+          768: {
+            slidesPerView: 2,
+          },
+          // when window width is >= 1024px
+          1024: {
+            slidesPerView: 4,
+          },
+        }}
+      >
+        {products.map((product) => (
+          <SwiperSlide key={product._id}>
+            <div className="bg-white rounded-lg shadow-md overflow-hidden">
+              <div className="relative w-full h-60">
+                <Link href={`/allproduct/${product._id}`}>
+                  <Image
+                    src={product.image}
+                    alt={product.productName}
+                    fill
+                    className="object-cover"
+                  />
+                </Link>
+              </div>
+              <div className="p-4">
+                <h3 className="text-center font-semibold text-gray-800 truncate">
                   {product.productName}
                 </h3>
-                <p className="text-xs text-gray-600 truncate text-center">
+                <p className="text-center text-sm text-gray-600 truncate">
                   {product.category}
                 </p>
-                <p className="font-semibold text-sm mt-2 text-center">
-                  ₹{product.price.toLocaleString()}
+                <p className="text-center font-semibold text-gray-900">
+                  RS {product.price.toLocaleString()}
                 </p>
               </div>
-            ))}
-          </div>
-        </div>
-
-        {/* Right Arrow */}
-        <button
-          onClick={next}
-          className="absolute right-0 top-1/2 transform -translate-y-1/2 bg-gray-300 hover:bg-gray-400 p-2 rounded-full z-10"
-          disabled={currentIndex >= products.length - 3}
-          aria-label="Next"
-        >
-          <ChevronRight className="w-5 h-5" />
-        </button>
-      </div>
+            </div>
+          </SwiperSlide>
+        ))}
+      </Swiper>
     </div>
   );
 };
 
-export default GearUp;
+export default AutoSlider;
