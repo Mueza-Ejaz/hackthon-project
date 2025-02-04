@@ -4,7 +4,8 @@ import { useAtom } from 'jotai';
 import { cartsItems } from '@/statelibrary';
 import { ShoppingCart, Plus, Minus, Trash2 } from 'lucide-react';
 import Image from 'next/image';
-import CheckoutButton from '@/components/CheckOutButton';
+import Link from 'next/link';
+import { motion } from "framer-motion";
 
 export default function CartPage() {
   const [carts, setCarts] = useAtom(cartsItems);
@@ -106,7 +107,16 @@ export default function CartPage() {
               <span>Total</span>
               <span>${subtotal.toFixed(2)}</span>
             </div>
-            <CheckoutButton/>
+          
+            <motion.div whileHover={{ scale: 1.04 }} whileTap={{ scale:1 }}>
+      <Link
+        href="/checkout"
+        className="px-6 py-3 bg-blue-500 text-white rounded-lg shadow-lg hover:bg-blue-600 focus:outline-none block text-center"
+      >
+        Place Order
+      </Link>
+    </motion.div>
+            
           </div>
         </div>
       )}
