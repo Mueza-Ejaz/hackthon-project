@@ -12,7 +12,7 @@ interface CheckoutButtonProps {
   disabled?: boolean;
 }
 
-const CheckoutButton: React.FC<CheckoutButtonProps> = ({ onClick, disabled }) => {
+const CheckoutButton: React.FC<CheckoutButtonProps> = ({ onClick }) => {
   const [stripe, setStripe] = useState<Stripe | null>(null);
   const [carts] = useAtom(cartsItems);
   const [billingDetails] = useAtom<Billing>(customerFormDetails);
