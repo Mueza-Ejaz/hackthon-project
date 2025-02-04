@@ -22,8 +22,6 @@ export interface Billing{
   city: string;
 }
 
-
-
 const initialBillingDetails:Billing = {
   fullName: "",
   phoneNumber: "",
