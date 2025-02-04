@@ -15,6 +15,11 @@ const OrderSuccessPage = () => {
   const [isExiting, setIsExiting] = useState(false); // Tracks exit animation
   const router = useRouter();
 
+  const Thankyou = ()=>{
+    const audio = new Audio('/sounds/thankyou.mp3');
+    audio.play();
+  }
+
 
 
 
@@ -22,6 +27,7 @@ useEffect(() => {
   // Simulate a fake loading for 2 seconds
   const timer = setTimeout(() => {
     setCarts([]);
+    Thankyou();
     setIsLoading(false);
     }, 2000);
 
