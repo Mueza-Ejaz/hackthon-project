@@ -4,7 +4,8 @@ const isPublicRoute = createRouteMatcher([
   '/',              // Home route
   '/public(.*)',     // All files inside public folder
   '/allproduct/:path*',
-  '/carts'
+  '/carts',
+  '/sign-in(.*)'
 ]);
 
 export default clerkMiddleware(async (auth, request) => {
