@@ -7,14 +7,19 @@ import { motion } from 'framer-motion';
 import ClipLoader from 'react-spinners/ClipLoader';
 import { Billing, cartsItems, customerFormDetails } from '@/statelibrary';
 
-const CheckoutButton = () => {
+interface CheckoutButtonProps {
+  onClick?: () => void;
+  disabled?: boolean;
+}
+
+const CheckoutButton: React.FC<CheckoutButtonProps> = ({ onClick, disabled }) => {
   const [stripe, setStripe] = useState<Stripe | null>(null);
   const [carts] = useAtom(cartsItems);
   const [billingDetails] = useAtom<Billing>(customerFormDetails);
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    // Load Stripe.js with your publishable key
+    // Load Stripe.js with publishable key
     loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!)
       .then((loadedStripe) => setStripe(loadedStripe))
       .catch((error) => console.error('Error loading Stripe:', error));
@@ -34,13 +39,11 @@ const CheckoutButton = () => {
     setLoading(true);
 
     try {
-      // Note: Changed the URL to match the API route
       const res = await fetch('/api/stripe/checkout', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        // Note: Sending `addCart` instead of `carts` to match the API expectation
         body: JSON.stringify({ addCart: carts, billingDetails }),
       });
 
@@ -68,25 +71,23 @@ const CheckoutButton = () => {
     }
   };
 
-  const isDisabled = !stripe || carts.length === 0 || loading;
+  // Reverse logic for disabling button
+  const isDisabled = stripe && carts.length > 0 && !loading;
+  const handleClick = isDisabled ? handleCheckout : onClick;
 
   return (
     <motion.button
       className={`${
-        isDisabled ? 'bg-gray-500 cursor-not-allowed' : 'bg-blue-500 hover:bg-green-700'
+        isDisabled ? 'bg-blue-500 hover:bg-green-700' : 'bg-gray-500 cursor-not-allowed'
       } w-full text-white p-3 rounded-md mt-4 flex justify-center items-center`}
-      onClick={handleCheckout}
-      disabled={isDisabled}
+      onClick={handleClick}
+      disabled={!isDisabled}
       initial={{ scale: 1 }}
-      whileHover={{ scale: isDisabled ? 1 : 1.03 }}
-      whileTap={{ scale: isDisabled ? 1 : 0.98 }}
+      whileHover={{ scale: isDisabled ? 1.03 : 1 }}
+      whileTap={{ scale: isDisabled ? 0.98 : 1 }}
       transition={{ type: 'spring', stiffness: 300, damping: 25 }}
     >
-      {loading ? (
-        <ClipLoader size={30} color="#fff" loading={loading} />
-      ) : (
-        'Checkout'
-      )}
+      {loading ? <ClipLoader size={30} color="#fff" loading={loading} /> : 'Checkout'}
     </motion.button>
   );
 };
